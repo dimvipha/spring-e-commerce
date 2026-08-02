@@ -1,0 +1,23 @@
+networks:
+  spring-net:
+    external: true
+
+volumes:
+  spring-vol:
+
+services:
+    postgres-spring:
+      image: postgres:17.10
+      container_name: spring-short-course
+      ports:
+        - '1300:5432'
+      environment:
+        POSTGRES_PASSWORD: 12345678
+        POSTGRES_USERNAME: postgres
+        POSTGRES_DB: postgres-db
+
+      volumes:
+        - spring-vol:/var/lib/postgresql/data
+
+      networks:
+        spring-net:
