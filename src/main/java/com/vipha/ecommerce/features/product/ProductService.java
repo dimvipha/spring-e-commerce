@@ -14,6 +14,6 @@ public interface ProductService {
     ProductResponse findByCode(String code);
 
     ProductResponse patchById(Integer id,UpdateProductRequest request);
-
+    Page<ProductResponse> search(String name, int pageNumber, int pageSize);
 
 }

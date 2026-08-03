@@ -3,10 +3,13 @@ package com.vipha.ecommerce.features.category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer>{
+    List<Category> findByNameContainsIgnoreCase(String name);
+
     boolean existsByName(String name);
 
     // auto generated query

@@ -1,7 +1,7 @@
 package com.vipha.ecommerce.features.product.dto;
 
 import com.vipha.ecommerce.features.category.dto.CategoryResponse;
-import com.vipha.ecommerce.features.tag.TagResponse;
+import com.vipha.ecommerce.features.tag.dto.TagResponse;
 
 import java.math.BigDecimal;
 import java.util.List;
