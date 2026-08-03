@@ -13,6 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
@@ -50,6 +52,11 @@ public class CategoryController {
     @PutMapping("/{id}")
     public CategoryResponse updateCategory(@PathVariable Integer id, @Valid @RequestBody  UpdateCategoryRequest request){
         return categoryService.updateById(id, request);
+    }
+
+    @GetMapping("/search")
+    public List<CategoryResponse> search(@RequestParam(required = false,defaultValue = "") String name){
+        return categoryService.search(name);
     }
 
 }
