@@ -110,7 +110,7 @@ public class MediaServiceImpl implements MediaService {
         // e.g. Vital.png
         int lastIndexDot = file.getOriginalFilename().lastIndexOf('.');
         String extension = file.getOriginalFilename().substring(lastIndexDot + 1);
-        Path path = Paths.get(mediaLocation + name + "." + extension);
+        Path path = Paths.get(bultMediaPath(name,extension));
         log.info("Uploading media location: {}", path);
 
         // 2. Copy file
@@ -146,7 +146,7 @@ public class MediaServiceImpl implements MediaService {
                 .size(media.getSize() / 1_000_000)
                 .isDraft(media.getIsDraft())
                 .measurement(MB)
-                .uri(buildMediaUri(media)) // http://localhost:1333/media/78689a24-551c-4575-9831-a4ec8e2bb0ef.png
+                .uri(buildMediaUri(media))
                 .build();
     }
 
