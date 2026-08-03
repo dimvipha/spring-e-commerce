@@ -1,5 +1,7 @@
 package com.vipha.ecommerce.features.tag;
 
+import com.vipha.ecommerce.features.tag.dto.TagRequest;
+import com.vipha.ecommerce.features.tag.dto.TagResponse;
 import com.vipha.ecommerce.mapper.TagMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -8,12 +10,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final TagMapper tagMapper;
+
+    @Override
+    public List<TagResponse> search(String name) {
+        return tagRepository.findByNameContainsIgnoreCase(name).stream()
+                .map(tagMapper::mapTagToTagResponse).toList();
+    }
 
     @Override
     public TagResponse createNew(TagRequest request) {

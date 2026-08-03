@@ -44,6 +44,14 @@ public class ProductController {
         return productService.findAll(pageNumber,pageSize);
     }
 
+    @GetMapping("/search")
+    public  Page<ProductResponse> search(@RequestParam(required = false,defaultValue = "") String name, @RequestParam(required = false, defaultValue = "0") int pageNumber,
+                                          @RequestParam(required = false, defaultValue = "10") int pageSize
+    ){
+        return productService.search(name,pageNumber,pageSize);
+    }
+
+
 
 //    @GetMapping
 //    public Page<ProductResponse> findAll(@RequestParam(required = false, defaultValue = "0") int pageNumber,

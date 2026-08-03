@@ -30,6 +30,13 @@ public class ProductServiceImpl implements ProductService {
     private final TagRepository tagRepository;
     private final ProductMapper productMapper;
 
+   @Override
+    public Page<ProductResponse> search(String name, int pageNumber, int pageSize){
+       Sort sortById=Sort.by(Sort.Direction.DESC,"id");
+       Pageable pageable= PageRequest.of(pageNumber, pageSize,sortById);
+        return productRepository.findByNameContainsIgnoreCase(name, pageable).map(productMapper::toProductResponse);
+    }
+
     @Override
     public ProductResponse patchById(Integer id,UpdateProductRequest updateProductRequest){
         Product validProduct=productRepository.findById(id).orElseThrow(
