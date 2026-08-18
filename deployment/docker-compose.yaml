@@ -3,21 +3,142 @@ networks:
     external: true
 
 volumes:
+  keycloak-vol:
   spring-vol:
 
 services:
-    postgres-spring:
-      image: postgres:17.10
-      container_name: spring-short-course
-      ports:
-        - '1300:5432'
-      environment:
-        POSTGRES_PASSWORD: 12345678
-        POSTGRES_USERNAME: postgres
-        POSTGRES_DB: postgres-db
 
-      volumes:
-        - spring-vol:/var/lib/postgresql/data
+  postgres-spring:
+    image: postgres:17.10
+    container_name: postgres-spring
+    ports:
+      - "1300:5432"
 
-      networks:
-        spring-net:
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+#      POSTGRES_DB: postgres-db
+
+    volumes:
+      - spring-vol:/var/lib/postgresql/data
+      - ./init_db/:/docker-entrypoint-initdb.d
+
+    networks:
+      - spring-net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak_server
+
+    command: start-dev
+
+    environment:
+      KC_DB: postgres
+      # 5432 = Postgres' in-container port. 1300 is the host-published port and
+      # is not reachable from inside the spring-net network.
+      KC_DB_URL: jdbc:postgresql://postgres-spring:5432/keycloak_db
+      KC_DB_USERNAME: ${DB_USERNAME}
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+
+      # Production Settings
+      # Hostname v2 (Keycloak 25+): KC_HOSTNAME takes a full URL. The removed v1
+      # options (hostname-port/-url/-admin-url/-strict-https, proxy) are gone.
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 1400
+      KC_HOSTNAME_URL: http://localhost:1400
+      KC_HOSTNAME_ADMIN_URL: http://localhost:1400
+      KC_HOSTNAME_STRICT: false               # set to true if HTTPS
+      KC_HOSTNAME_STRICT_HTTPS: false         # set to true if HTTPS
+      KC_PROXY: edge
+      KC_HTTP_ENABLED: true
+      #KC_HTTPS_PORT: 443
+      KC_PROXY_HEADERS: xforwarded
+      KC_CACHE: ispn
+      KC_LOG_LEVEL: INFO
+      KC_METRICS_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      JAVA_OPTS_APPEND: "-Xms512m -Xmx2048m"
+    volumes:
+      - keycloak-vol:/opt/keycloak/data
+      - ./keycloak/themes:/opt/keycloak/themes
+      - ./keycloak/providers:/opt/keycloak/providers
+      # NOTE: do not mount ./keycloak/conf here — an empty host dir shadows the
+      # image's /opt/keycloak/conf (keycloak.conf, cache-ispn.xml).
+
+    ports:
+      - "1400:8080"
+
+    depends_on:
+      - postgres-spring
+
+    networks:
+      - spring-net
+
+    restart: unless-stopped
+
+#
+
+#
+#networks:
+#  spring-net:
+#    external: true
+#volumes:
+#  sb13-vol:
+#  keycloak-sb13-vol:
+#services:
+#  keycloak-sb13:
+#    image: quay.io/keycloak/keycloak:26.6.4
+#    container_name: keycloak-sb13
+#    ports:
+#      - "1301:8080"
+#    command: start # start keycloak server in production
+#    environment:
+#      # Database Configuration
+#      KC_DB: postgres
+#      KC_DB_URL: jdbc:postgresql://postgres-sb13:5432/keycloak_db
+#      KC_DB_USERNAME: sb13usr
+#      KC_DB_PASSWORD: qwerqwer
+#      # Admin User (បណ្ដោះអាសន្ន)
+#      KC_BOOTSTRAP_ADMIN_USERNAME: temp_admin
+#      KC_BOOTSTRAP_ADMIN_PASSWORD: temp_qwerqwer
+#      # Production Setting
+#      KC_HOSTNAME: localhost
+#      KC_HOSTNAME_PORT: 1301
+#      KC_HOSTNAME_URL: http://localhost:1301
+#      KC_HOSTNAME_ADMIN_URL: http://localhost:1301
+#      KC_HOSTNAME_STRICT: false               # set to true if HTTPS
+#      KC_HOSTNAME_STRICT_HTTPS: false         # set to true if HTTPS
+#      KC_PROXY: edge
+#      KC_HTTP_ENABLED: true
+#      #KC_HTTPS_PORT: 443
+#      KC_PROXY_HEADERS: xforwarded
+#      KC_CACHE: ispn
+#      KC_LOG_LEVEL: INFO
+#      KC_METRICS_ENABLED: true
+#      KC_HEALTH_ENABLED: true
+#      JAVA_OPTS_APPEND: "-Xms512m -Xmx2048m"
+#    volumes:
+#      - keycloak-sb13-vol:/opt/keycloak/data
+#      - ./keycloak/themes:/opt/keycloak/themes
+#      - ./keycloak/conf:/opt/keycloak/conf
+#    networks:
+#      - spring-net
+#    depends_on:
+#      - postgres-sb13
+#  postgres-sb13:
+#    image: postgres:18.4
+#    container_name: postgres-sb13
+#    ports:
+#      - "1300:5432"
+#    environment:
+#      POSTGRES_PASSWORD: qwerqwer #(required)
+#      POSTGRES_USER: sb13usr
+#    volumes:
+#      - sb13-vol:/var/lib/postgresql/18/docker
+#      - ./init_db/:/docker-entrypoint-initdb.d
+#    networks:
+#      - spring-net
+
