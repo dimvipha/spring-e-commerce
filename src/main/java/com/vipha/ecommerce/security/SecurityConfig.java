@@ -49,6 +49,61 @@ public class SecurityConfig {
 //                                .requestMatchers(HttpMethod.DELETE,"/api/v1/categories/**").hasAnyRole("ADMIN")
                                 .requestMatchers(HttpMethod.PUT,"/api/v1/categories/**").hasAnyAuthority("STAFF","ADMIN")
                                 .requestMatchers(HttpMethod.PATCH,"/api/v1/categories/**").hasAnyAuthority("STAFF","ADMIN")
+                                // =========================
+                                // Tags
+                                // =========================
+                                .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/tags/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/tags/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.PATCH, "/api/v1/tags/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/tags/**")
+                                .hasAuthority("ADMIN")
+
+                                // =========================
+                                // Products
+                                // =========================
+                                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/products/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/products/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**")
+                                .hasAuthority("ADMIN")
+
+                                // =========================
+                                // Orders
+                                // =========================
+                                .requestMatchers(HttpMethod.POST, "/api/v1/orders/**")
+                                .hasAuthority("CUSTOMER")
+                                // Customer's own orders
+                                .requestMatchers(HttpMethod.GET, "/api/v1/orders/me")
+                                .hasAuthority("CUSTOMER")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/orders/**")
+                                .hasAnyAuthority( "STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/orders/**")
+                                .hasAnyAuthority("CUSTOMER", "STAFF", "ADMIN")
+//                                .requestMatchers(HttpMethod.PATCH, "/api/v1/orders/**")
+//                                .hasAnyAuthority("STAFF","CUSTOMER", "ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/orders/**")
+                                .hasAuthority("ADMIN")
+
+                                // =========================
+                                // Medias
+                                // =========================
+                                .requestMatchers(HttpMethod.GET, "/api/v1/medias/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/medias/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/medias/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.PATCH, "/api/v1/medias/**")
+                                .hasAnyAuthority("STAFF", "ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/medias/**")
+                                .hasAuthority("ADMIN")
                                 .anyRequest()
                                 .authenticated());
                 // 3. Authentication Mechanism
@@ -68,15 +123,22 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
         Converter<Jwt, Collection<GrantedAuthority>> converter = jwt -> {
-            Map<String,Collection<String>> realmAccess = jwt.getClaim("realm_access");
+            Map<String, Collection<String>> realmAccess = jwt.getClaim("realm_access");
             Collection<String> roles = new HashSet<>();
-            return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
+            if (realmAccess != null) {
+                roles = realmAccess.get("roles");
+            }
+            return roles.stream()
+                    .map(role -> new SimpleGrantedAuthority(role))
+                    .collect(Collectors.toSet());
         };
 
-        var jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(converter);
+
         return jwtAuthenticationConverter;
     }
+
 }

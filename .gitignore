@@ -36,6 +36,8 @@ out/
 ### VS Code ###
 .vscode/
 
-./deployment/.env
+
+
+deployment/.env
 
 CLAUDE.MD

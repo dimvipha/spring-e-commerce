@@ -23,7 +23,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @PreAuthorize( "hasRole('ADMIN')") // dis centralized security configuration
+// dis centralized security configuration
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Integer id){

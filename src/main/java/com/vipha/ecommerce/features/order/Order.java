@@ -23,7 +23,7 @@ public class Order {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String customerId;
 
     @Column(nullable = false)
@@ -41,7 +41,9 @@ public class Order {
     @Column(nullable = false)
     private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "order")
+//    @OneToMany(mappedBy = "order")
+//    private List<OrderLine> orderLines;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> orderLines;
 
 }
