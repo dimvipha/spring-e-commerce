@@ -41,7 +41,8 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/v3/scalar.js",
                                         "/v3/api-docs/**",
-                                        "/scalar/**"
+                                        "/scalar/**",
+                                        "/api/v1/auth/register"
                                         )
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET,"/api/v1/categories/**").permitAll()
